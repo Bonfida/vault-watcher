@@ -20,12 +20,14 @@ pub struct AccountToMonitorRaw {
     pub address: String,
     pub max_change: f64,
     pub max_change_period: u64,
+    pub name: String,
 }
 
 pub struct AccountToMonitor {
     pub address: Pubkey,
     pub max_change: f64,
     pub max_change_period: u64,
+    pub name: String,
 }
 
 impl AccountToMonitor {
@@ -34,11 +36,13 @@ impl AccountToMonitor {
             address,
             max_change,
             max_change_period,
+            name,
         } = r;
         AccountToMonitor {
             address: Pubkey::from_str(&address).unwrap(),
             max_change,
             max_change_period,
+            name,
         }
     }
 }
@@ -50,11 +54,13 @@ pub struct Config {
     refresh_period: u64,
 }
 
+#[derive(Debug)]
 pub struct CachedAccount {
     address: Pubkey,
     balance: f64,
     decimals: i32,
     max_change: f64,
+    name: String,
 }
 
 pub async fn run(config: Config, accounts: Vec<AccountToMonitorRaw>) {
@@ -111,6 +117,7 @@ pub async fn initialize(
             balance: (token_account.amount as f64) / 10.0f64.powi(decimals),
             decimals,
             max_change: m.max_change * (refresh_period as f64) / (m.max_change_period as f64), // Amount of change in one refresh
+            name: m.name.to_string(),
         })
     }
     cache
@@ -135,8 +142,8 @@ pub async fn monitor(interval: u64, connection: &RpcClient, mut cache: Vec<Cache
             if delta > cached.max_change {
                 SlackClient::new()
                     .send_message(format!(
-                        "Account spike detected for {} of {}",
-                        cached.address, delta
+                        "Account spike detected for {} ({}) of {} - previous balances {} - current balances {}",
+                        cached.name, cached.address, delta, cached.balance, new_balance
                     ))
                     .await;
             }
