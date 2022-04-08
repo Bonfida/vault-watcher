@@ -4,11 +4,13 @@ use std::{
     time::Duration,
 };
 
+use db::Database;
 use serde::{Deserialize, Serialize};
 use solana_client::nonblocking::rpc_client::RpcClient;
 use solana_sdk::{program_pack::Pack, pubkey::Pubkey};
 use utils::SlackClient;
 
+mod db;
 mod utils;
 
 pub const DEFAULT_CHANGE: f64 = 100.0;
@@ -69,14 +71,18 @@ pub async fn run(config: Config, accounts: Vec<AccountToMonitorRaw>) {
         refresh_period,
     } = config;
     let connection = RpcClient::new(endpoint);
-    let cache = initialize(&connection, accounts, refresh_period).await;
-    monitor(refresh_period, &connection, cache).await
+    let database = Database::new(refresh_period, accounts.len() as u64)
+        .await
+        .unwrap();
+    let cache = initialize(&connection, accounts, refresh_period, &database).await;
+    monitor(refresh_period, &connection, cache, &database).await
 }
 
 pub async fn initialize(
     connection: &RpcClient,
     accounts: Vec<AccountToMonitorRaw>,
     refresh_period: u64,
+    database: &Database,
 ) -> Vec<CachedAccount> {
     let parsed = accounts
         .into_iter()
@@ -112,18 +118,24 @@ pub async fn initialize(
     );
     for (m, token_account) in parsed.iter().zip(parsed_accounts.into_iter()) {
         let decimals = *mint_decimals.get(&token_account.mint).unwrap() as i32;
-        cache.push(CachedAccount {
+        let cached_account = CachedAccount {
             address: m.address,
             balance: (token_account.amount as f64) / 10.0f64.powi(decimals),
             decimals,
             max_change: m.max_change * (refresh_period as f64) / (m.max_change_period as f64), // Amount of change in one refresh
             name: m.name.to_string(),
-        })
+        };
+        cache.push(cached_account);
     }
     cache
 }
 
-pub async fn monitor(interval: u64, connection: &RpcClient, mut cache: Vec<CachedAccount>) {
+pub async fn monitor(
+    interval: u64,
+    connection: &RpcClient,
+    mut cache: Vec<CachedAccount>,
+    database: &Database,
+) {
     let mut interval = tokio::time::interval(Duration::from_millis(interval));
     let accounts_to_monitor = cache.iter().map(|c| c.address).collect::<Vec<_>>();
     loop {
@@ -148,6 +160,9 @@ pub async fn monitor(interval: u64, connection: &RpcClient, mut cache: Vec<Cache
                     .await;
             }
             cached.balance = new_balance;
+            if let Err(e) = database.commit_account(cached).await {
+                eprintln!("Failed to commit account to database with {}", e);
+            }
         }
     }
 }
