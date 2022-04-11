@@ -70,11 +70,13 @@ pub async fn run(config: Config, accounts: Vec<AccountToMonitorRaw>) {
         endpoint,
         refresh_period,
     } = config;
+    // We try to initialize a new slack client in order to test it
+    SlackClient::new();
     let connection = RpcClient::new(endpoint);
     let database = Database::new(refresh_period, accounts.len() as u64)
         .await
         .unwrap();
-    let cache = initialize(&connection, accounts, refresh_period, &database).await;
+    let cache = initialize(&connection, accounts, refresh_period).await;
     monitor(refresh_period, &connection, cache, &database).await
 }
 
@@ -82,7 +84,6 @@ pub async fn initialize(
     connection: &RpcClient,
     accounts: Vec<AccountToMonitorRaw>,
     refresh_period: u64,
-    database: &Database,
 ) -> Vec<CachedAccount> {
     let parsed = accounts
         .into_iter()
@@ -152,12 +153,13 @@ pub async fn monitor(
             let new_balance = (token_account.amount as f64) / 10.0f64.powi(cached.decimals);
             let delta = (new_balance - cached.balance).abs();
             if delta > cached.max_change {
-                SlackClient::new()
-                    .send_message(format!(
+                if let Some(c) = SlackClient::new() {
+                    c.send_message(format!(
                         "Account spike detected for {} ({}) of {} - previous balances {} - current balances {}",
                         cached.name, cached.address, delta, cached.balance, new_balance
                     ))
                     .await;
+                }
             }
             cached.balance = new_balance;
             if let Err(e) = database.commit_account(cached).await {

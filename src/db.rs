@@ -1,6 +1,5 @@
 use std::time::Duration;
 
-use futures::StreamExt;
 use sysinfo::SystemExt;
 use tokio_postgres::{tls::MakeTlsConnect, types::Type, NoTls, Socket, Statement};
 
@@ -8,7 +7,6 @@ use crate::CachedAccount;
 
 pub struct Database {
     client: tokio_postgres::Client,
-    use_timescale_db: bool,
     insertion_statement: Statement,
 }
 
@@ -32,7 +30,6 @@ impl Database {
             .unwrap();
         Ok(Self {
             client,
-            use_timescale_db: true,
             insertion_statement,
         })
     }
@@ -53,12 +50,11 @@ async fn connect_to_database() -> (
     tokio_postgres::Client,
     tokio_postgres::Connection<Socket, <tokio_postgres::NoTls as MakeTlsConnect<Socket>>::Stream>,
 ) {
+    let password = std::env::var("POSTGRES_PASSWORD")
+        .expect("POSTGRES_PASSWORD environment variable must be set!");
+    let config_str = format!("host=db port=5432 password={password} user=postgres dbname=postgres");
     loop {
-        let res = tokio_postgres::connect(
-            "host=db port=5432 password=postgres user=postgres dbname=postgres",
-            NoTls,
-        )
-        .await;
+        let res = tokio_postgres::connect(&config_str, NoTls).await;
         if let Ok(r) = res {
             return r;
         }
@@ -81,7 +77,7 @@ async fn initialize(
         address VARCHAR(44),
         name VARCHAR(50),
         balance DOUBLE PRECISION,
-        PRIMARY KEY (timestamp, address)
+        PRIMARY KEY (timestamp, name, address)
     );",
             &[],
         )

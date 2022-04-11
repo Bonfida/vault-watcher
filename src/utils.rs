@@ -1,5 +1,4 @@
 use core::fmt::Debug;
-use dotenv::var;
 use reqwest::Client;
 use std::{future::Future, time::SystemTime};
 use tokio::task;
@@ -9,19 +8,17 @@ pub struct SlackClient {
     pub url: String,
 }
 
-impl Default for SlackClient {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl SlackClient {
-    pub fn new() -> Self {
-        dotenv::dotenv().unwrap();
-        Self {
+    pub fn new() -> Option<Self> {
+        let var = std::env::var("SLACK_URL").ok();
+        let r = var.map(|v| Self {
             client: Client::new(),
-            url: var("SLACK_URL").unwrap(),
+            url: v,
+        });
+        if r.is_none() {
+            println!("The SLACK_URL variable was not set. Slack notification are disabled");
         }
+        r
     }
     pub async fn send_message(&self, message: String) {
         let slack_message = format!("{{ text: '{0}' }}", message);
@@ -59,9 +56,10 @@ where
         counter += 1;
         let error = res.err().unwrap();
         if counter % 10 == 0 {
-            SlackClient::new()
-                .send_message(format!("Failed task with {:#?}, retrying", error))
-                .await;
+            if let Some(c) = SlackClient::new() {
+                c.send_message(format!("Failed task with {:#?}, retrying", error))
+                    .await;
+            }
         }
 
         println!("Failed task with {:#?}, retrying", error);

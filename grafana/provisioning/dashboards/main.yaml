@@ -1,0 +1,6 @@
+apiVersion: 1
+providers:
+  - name: 'Main dashboard'
+    type: file
+    options:
+      path: /usr/share/grafana/public/home.json
