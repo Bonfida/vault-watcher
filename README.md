@@ -55,7 +55,7 @@ The Postgres database can be directly accessed. In addition, a grafana instance 
 ### `config.json`
 
 | Field Name    | Type    | Description                                                                          |
-| ------------- | ------- | ------------------------------------------------------------------------------------ |
+|---------------|---------|--------------------------------------------------------------------------------------|
 | endpoint      | string  | URL for the Solana RPC endpoint to connect to                                        |
 | refreshPeriod | integer | Period between account polls in milliseconds. All polls are written to the database. |
 
@@ -64,10 +64,10 @@ The Postgres database can be directly accessed. In addition, a grafana instance 
 An array of accounts objects containing
 
 | Field Name      | Type    | Description                                                                                                          |
-| --------------- | ------- | -------------------------------------------------------------------------------------------------------------------- |
+|-----------------|---------|----------------------------------------------------------------------------------------------------------------------|
 | name            | string  | User-readable identifier for the account to monitor. Maximum length is 50 characters.                                |
 | address         | string  | The public key in base58 format for the account to monitor                                                           |
-| maxChange       | float   | The maximum allowable amplitude of balance change.                                                                   |
+| maxChange       | float   | The maximum allowable amplitude of balance change (in UiAmount)                                                      |
 | maxChangePeriod | integer | Maximum number of milliseconds over which a maxChange balance variation is allowed without triggering a notification |
 
 <br />
