@@ -1,8 +1,32 @@
-# Vault-watcher : monitoring critical spl-token accounts in real time
+<h1 align="center">Vault watcher</h1>
+<br />
+<p align="center">
+<img width="250" src="https://ftx.com/static/media/fida.ce20eedf.svg"/>
+</p>
+<br />
+
+<h2 align="center">Monitoring critical spl-token accounts in real time</h2>
+<br/>
+
+<br />
+<h2 align="center">Table of contents</h2>
+<br />
+
+1. [Introduction](#introduction)
+2. [Usage](#usage)
+3. [Configuration](#configuration)
+
+<br />
+<a name="introduction"></a>
+<h2 align="center">Introduction</h2>
+<br />
 
 This security utility can be deployed as a container on a server to enable the monitoring of mission-critical spl-token accounts. Thanks to compatibility with Slack notifications, it constitutes the basis for a simple early warning system able to detect suspicious variations in account balances. As such, it can help help detect critical bugs in production systems, as well as intentional attacks resulting from contract exploits, key theft, rogue agents/teams, etc.
 
-## Usage
+<br />
+<a name="usage"></a>
+<h2 align="center">Usage</h2>
+<br />
 
 Although the `vault-watcher` service can be used directly as a binary with a custom postgres instance, we recommend using `docker-compose`.
 
@@ -22,12 +46,15 @@ sudo docker-compose up
 
 The Postgres database can be directly accessed. In addition, a grafana instance with a simple provisioned dashboard can be found running at `http://localhost:3000` by default.
 
-## Configuration
+<br />
+<a name="configuration"></a>
+<h2 align="center">Configuration</h2>
+<br />
 
 ### `config.json`
 
 | Field Name    | Type    | Description                                                                          |
-|---------------|---------|--------------------------------------------------------------------------------------|
+| ------------- | ------- | ------------------------------------------------------------------------------------ |
 | endpoint      | string  | URL for the Solana RPC endpoint to connect to                                        |
 | refreshPeriod | integer | Period between account polls in milliseconds. All polls are written to the database. |
 
@@ -36,7 +63,7 @@ The Postgres database can be directly accessed. In addition, a grafana instance 
 An array of accounts objects containing
 
 | Field Name      | Type    | Description                                                                                                          |
-|-----------------|---------|----------------------------------------------------------------------------------------------------------------------|
+| --------------- | ------- | -------------------------------------------------------------------------------------------------------------------- |
 | name            | string  | User-readable identifier for the account to monitor. Maximum length is 50 characters.                                |
 | address         | string  | The public key in base58 format for the account to monitor                                                           |
 | maxChange       | float   | The maximum allowable amplitude of balance change.                                                                   |
