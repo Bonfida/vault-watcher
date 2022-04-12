@@ -15,6 +15,7 @@
 1. [Introduction](#introduction)
 2. [Usage](#usage)
 3. [Configuration](#configuration)
+4. [Configuration examples](#configuration-examples)
 
 <br />
 <a name="introduction"></a>
@@ -68,3 +69,28 @@ An array of accounts objects containing
 | address         | string  | The public key in base58 format for the account to monitor                                                           |
 | maxChange       | float   | The maximum allowable amplitude of balance change.                                                                   |
 | maxChangePeriod | integer | Maximum number of milliseconds over which a maxChange balance variation is allowed without triggering a notification |
+
+<br />
+<a name="configuration-examples"></a>
+<h2 align="center">Configuration examples</h2>
+<br />
+
+For example, if your endpoint is `https://solana-api.projectserum.com` and you want to poll data every `5s`:
+
+```json
+{
+  "refreshPeriod": 5000,
+  "endpoint": "https://solana-api.projectserum.com"
+}
+```
+
+For example if you want to monitor `2Av1qmnqjLcnA9cpNduUL9BQcitobBq1Fiu7ZA4t45a6` and allow a max variation of `1,000` tokens every `5s`:
+
+```json
+{
+  "address": "2Av1qmnqjLcnA9cpNduUL9BQcitobBq1Fiu7ZA4t45a6",
+  "maxChange": 1000,
+  "maxChangePeriod": 5000,
+  "name": "My token account"
+}
+```
