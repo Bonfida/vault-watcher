@@ -3,10 +3,22 @@
 <p align="center">
 <img width="250" src="https://ftx.com/static/media/fida.ce20eedf.svg"/>
 </p>
+<p align="center">
+<a href="https://twitter.com/bonfida">
+<img src="https://img.shields.io/twitter/url?label=Bonfida&style=social&url=https%3A%2F%2Ftwitter.com%2Fbonfida">
+</a>
+</p>
+
 <br />
 
 <h2 align="center">Monitoring critical spl-token accounts in real time</h2>
 <br/>
+
+<div align="center">
+<img src="https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white" />
+<img src="https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white" />
+<img src="https://img.shields.io/badge/Grafana-F2F4F9?style=for-the-badge&logo=grafana&logoColor=orange&labelColor=F2F4F9" />
+</div>
 
 <br />
 <h2 align="center">Table of contents</h2>
@@ -55,7 +67,7 @@ The Postgres database can be directly accessed. In addition, a grafana instance 
 ### `config.json`
 
 | Field Name    | Type    | Description                                                                          |
-|---------------|---------|--------------------------------------------------------------------------------------|
+| ------------- | ------- | ------------------------------------------------------------------------------------ |
 | endpoint      | string  | URL for the Solana RPC endpoint to connect to                                        |
 | refreshPeriod | integer | Period between account polls in milliseconds. All polls are written to the database. |
 
@@ -64,7 +76,7 @@ The Postgres database can be directly accessed. In addition, a grafana instance 
 An array of accounts objects containing
 
 | Field Name      | Type    | Description                                                                                                          |
-|-----------------|---------|----------------------------------------------------------------------------------------------------------------------|
+| --------------- | ------- | -------------------------------------------------------------------------------------------------------------------- |
 | name            | string  | User-readable identifier for the account to monitor. Maximum length is 50 characters.                                |
 | address         | string  | The public key in base58 format for the account to monitor                                                           |
 | maxChange       | float   | The maximum allowable amplitude of balance change (in UiAmount)                                                      |
