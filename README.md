@@ -30,6 +30,12 @@
 4. [Configuration examples](#configuration-examples)
 
 <br />
+<p align="center">
+<img src="assets/overview.png" width="90%" />
+</p>
+<br />
+
+<br />
 <a name="introduction"></a>
 <h2 align="center">Introduction</h2>
 <br />
