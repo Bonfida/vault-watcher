@@ -28,6 +28,7 @@
 2. [Usage](#usage)
 3. [Configuration](#configuration)
 4. [Configuration examples](#configuration-examples)
+5. [Grafana](#grafana)
 
 <br />
 <p align="center">
@@ -74,7 +75,7 @@ The Postgres database can be directly accessed. In addition, a grafana instance 
 ### `config.json`
 
 | Field Name    | Type    | Description                                                                          |
-|---------------|---------|--------------------------------------------------------------------------------------|
+| ------------- | ------- | ------------------------------------------------------------------------------------ |
 | endpoint      | string  | URL for the Solana RPC endpoint to connect to                                        |
 | refreshPeriod | integer | Period between account polls in milliseconds. All polls are written to the database. |
 
@@ -83,7 +84,7 @@ The Postgres database can be directly accessed. In addition, a grafana instance 
 An array of accounts objects containing
 
 | Field Name      | Type    | Description                                                                                                          |
-|-----------------|---------|----------------------------------------------------------------------------------------------------------------------|
+| --------------- | ------- | -------------------------------------------------------------------------------------------------------------------- |
 | name            | string  | User-readable identifier for the account to monitor. Maximum length is 50 characters.                                |
 | address         | string  | The public key in base58 format for the account to monitor                                                           |
 | maxChange       | float   | The maximum allowable amplitude of balance change (in UiAmount)                                                      |
@@ -94,13 +95,11 @@ An array of accounts objects containing
 The .env file is used to define additional configuration through environment variables.
 
 | Var name          | Description                                                           |
-|-------------------|-----------------------------------------------------------------------|
+| ----------------- | --------------------------------------------------------------------- |
 | POSTGRES_PASSWORD | Password for direct access to the underlying balance history database |
 | DB_PORT           | Port number for the accessible locahost postgres database             |
 | GRAFANA_PORT      | Port number on localhost for the grafana interface                    |
 | SLACK_URL         | Slack hook url used to push balance notifications to a Slack channel  |
-
-
 
 <br />
 <a name="configuration-examples"></a>
@@ -126,3 +125,14 @@ For example if you want to monitor `2Av1qmnqjLcnA9cpNduUL9BQcitobBq1Fiu7ZA4t45a6
   "name": "My token account"
 }
 ```
+
+<br />
+<a name="grafana"></a>
+<h2 align="center">Grafana </h2>
+<br />
+
+Historical balances can be monitored using [Grafana](https://grafana.com/) through port `3000`
+
+<p align="center">
+<img src="assets/grafana.png" width="90%" />
+</p>
