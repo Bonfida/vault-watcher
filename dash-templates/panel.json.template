@@ -1,0 +1,113 @@
+{
+    "datasource": null,
+    "description": "",
+    "fieldConfig": {
+        "defaults": {
+            "color": {
+                "mode": "palette-classic"
+            },
+            "custom": {
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                    "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                },
+                "thresholdsStyle": {
+                    "mode": "off"
+                }
+            },
+            "mappings": [],
+            "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                    {
+                        "color": "green",
+                        "value": null
+                    },
+                    {
+                        "color": "red",
+                        "value": 80
+                    }
+                ]
+            }
+        },
+        "overrides": []
+    },
+    "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": $$X_POS$$,
+        "y": $$Y_POS$$
+    },
+    "id": 2,
+    "options": {
+        "legend": {
+            "calcs": [],
+            "displayMode": "hidden",
+            "placement": "right"
+        },
+        "tooltip": {
+            "mode": "single"
+        }
+    },
+    "targets": [
+        {
+            "format": "time_series",
+            "group": [],
+            "metricColumn": "none",
+            "rawQuery": false,
+            "rawSql": "SELECT\n  \"timestamp\" AS \"time\",\n  balance\nFROM vault_watcher\nWHERE\n  $__timeFilter(\"timestamp\") AND\n  name = '$$NAME$$'\nORDER BY 1",
+            "refId": "A",
+            "select": [
+                [
+                    {
+                        "params": [
+                            "balance"
+                        ],
+                        "type": "column"
+                    }
+                ]
+            ],
+            "table": "vault_watcher",
+            "timeColumn": "\"timestamp\"",
+            "timeColumnType": "timestamp",
+            "where": [
+                {
+                    "name": "$__timeFilter",
+                    "params": [],
+                    "type": "macro"
+                },
+                {
+                    "datatype": "varchar",
+                    "name": "",
+                    "params": [
+                        "name",
+                        "=",
+                        "'$$NAME$$'"
+                    ],
+                    "type": "expression"
+                }
+            ]
+        }
+    ],
+    "title": "Burn: FIDA reserve",
+    "type": "timeseries"
+}

@@ -19,6 +19,7 @@ datasources:
 #   orgId: 1
 #   # <string> url
   url: db:5432
+  uid: main_tsdb
 #   # <string> database user, if used
   user: postgres
 #   # <string> database name, if used

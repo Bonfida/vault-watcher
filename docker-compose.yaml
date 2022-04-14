@@ -1,23 +1,24 @@
 services:
   db:
-    env_file: config.env
+    env_file: .env
     image: timescale/timescaledb:latest-pg14   
     ports:
-      - 127.0.0.1:${DB_PORT}:5432
+      - 127.0.0.1:${DB_PORT:?err}:5432
     volumes:
       - data:/var/lib/postgresql/data
   vault-watcher:
-    env_file: config.env
+    env_file: .env
     build: .
   grafana:
-    env_file: config.env
-    image: grafana/grafana:latest
+    build: 
+      dockerfile: dash-templates/Dockerfile
+      context: .
+    env_file: .env
     ports:
       - 127.0.0.1:3000:3000
     volumes:
       - ./grafana/provisioning/:/etc/grafana/provisioning
       - ./grafana/grafana.ini:/etc/grafana/grafana.ini
-      - ./grafana/home.json:/usr/share/grafana/public/home.json
 
 volumes:
   data:
