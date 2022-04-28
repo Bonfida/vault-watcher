@@ -100,6 +100,7 @@ async fn initialize(
     let chunk_size_ms = refresh_period_ms * system_memory_kb * 1024
         / Database::ENTRY_SIZE
         / number_of_accounts_to_monitor;
+    let shrunk_chunk_size = ((chunk_size_ms as f64) * Database::RELATIVE_CHUNK_SIZE) as i64;
     let s = client
         .prepare_typed(
             "SELECT set_chunk_time_interval('vault_watcher', $1);",
@@ -107,7 +108,7 @@ async fn initialize(
         )
         .await
         .unwrap();
-    let o = client.query(&s, &[&(chunk_size_ms as i64)]).await?;
+    let o = client.query(&s, &[&shrunk_chunk_size]).await?;
     println!("Output from set_chunk_time_interval");
     println!("{o:?}");
     Ok(())
