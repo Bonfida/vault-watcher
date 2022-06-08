@@ -1,8 +1,14 @@
 [
     {
+        "accountType": "vault",
         "address": "Fc6keb9ZANEmdEhUgEiB9T9nBU6oSEiTmNbfd9h7g4HA",
         "maxChange": 1.0,
         "maxChangePeriod": 1,
-        "name": "testAccount"
+        "name": "testVaultAccount"
+    },
+    {
+        "accountType": "program",
+        "address": "6XmmYz2gxHRPzh4yUZKiqkifEMbscS2k2ZC3bj6Amdpp",
+        "name": "testProgramAccount"
     }
 ]

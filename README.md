@@ -30,7 +30,9 @@
 4. [Configuration examples](#configuration-examples)
 5. [Grafana](#grafana)
 
+//TODO update diagram
 <br />
+
 <p align="center">
 <img src="assets/overview.png" width="90%" />
 </p>
@@ -41,7 +43,7 @@
 <h2 align="center">Introduction</h2>
 <br />
 
-This security utility can be deployed as a container on a server to enable the monitoring of mission-critical spl-token accounts. Thanks to compatibility with Slack notifications, it constitutes the basis for a simple early warning system able to detect suspicious variations in account balances. As such, it can help help detect critical bugs in production systems, as well as intentional attacks resulting from contract exploits, key theft, rogue agents/teams, etc.
+This security utility can be deployed as a container on a server to enable the monitoring of mission-critical native sol, spl-token and program accounts. Thanks to compatibility with Slack notifications, it constitutes the basis for a simple early warning system able to detect suspicious variations in account balances and deployments. As such, it can help help detect critical bugs in production systems, as well as intentional attacks resulting from contract exploits, key theft, rogue agents/teams, etc.
 
 <br />
 <a name="usage"></a>
@@ -83,12 +85,12 @@ The Postgres database can be directly accessed. In addition, a grafana instance 
 
 An array of accounts objects containing
 
-| Field Name      | Type    | Description                                                                                                          |
-| --------------- | ------- | -------------------------------------------------------------------------------------------------------------------- |
-| name            | string  | User-readable identifier for the account to monitor. Maximum length is 50 characters.                                |
-| address         | string  | The public key in base58 format for the account to monitor                                                           |
-| maxChange       | float   | The maximum allowable amplitude of balance change (in UiAmount)                                                      |
-| maxChangePeriod | integer | Maximum number of milliseconds over which a maxChange balance variation is allowed without triggering a notification |
+| Field Name      | Type               | Description                                                                                                                                                    |
+| --------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name            | string             | User-readable identifier for the account to monitor. Maximum length is 50 characters.                                                                          |
+| address         | string             | The public key in base58 format for the account to monitor                                                                                                     |
+| maxChange       | float (Optional)   | The maximum allowable amplitude of balance change (in UiAmount, or Sol for native sol accounts). Only to be specified for a vault account                      |
+| maxChangePeriod | integer (Optional) | Maximum number of milliseconds over which a maxChange balance variation is allowed without triggering a notification. Only to be specified for a vault account |
 
 ### `.env`
 
@@ -115,14 +117,20 @@ For example, if your endpoint is `https://solana-api.projectserum.com` and you w
 }
 ```
 
-For example if you want to monitor `2Av1qmnqjLcnA9cpNduUL9BQcitobBq1Fiu7ZA4t45a6` and allow a max variation of `1,000` tokens every `5s`:
+For example if you want to monitor `2Av1qmnqjLcnA9cpNduUL9BQcitobBq1Fiu7ZA4t45a6` and allow a max variation of `1,000` tokens every `5s` while monitoring the program account `6XmmYz2gxHRPzh4yUZKiqkifEMbscS2k2ZC3bj6Amdpp`:
 
 ```json
 {
+  "accountType": "vault",
   "address": "2Av1qmnqjLcnA9cpNduUL9BQcitobBq1Fiu7ZA4t45a6",
   "maxChange": 1000,
   "maxChangePeriod": 5000,
-  "name": "My token account"
+  "name": "My token (or native sol) account"
+},
+{
+  "accountType": "program",
+  "address": "6XmmYz2gxHRPzh4yUZKiqkifEMbscS2k2ZC3bj6Amdpp",
+  "name": "My program account"
 }
 ```
 
