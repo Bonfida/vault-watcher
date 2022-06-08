@@ -3,7 +3,7 @@ use std::time::Duration;
 use sysinfo::SystemExt;
 use tokio_postgres::{tls::MakeTlsConnect, types::Type, NoTls, Socket, Statement};
 
-use crate::CachedAccount;
+use crate::{CachedAccount, CachedAccountInfos};
 
 pub struct Database {
     client: tokio_postgres::Client,
@@ -34,12 +34,20 @@ impl Database {
         })
     }
 
-    pub async fn commit_account(&self, a: &CachedAccount) -> Result<(), tokio_postgres::Error> {
+    pub async fn commit_account(
+        &self,
+        a: &CachedAccount,
+        change_in_pgr: bool,
+    ) -> Result<(), tokio_postgres::Error> {
         let pubkey_str = a.address.to_string();
+        let value = match &a.info {
+            CachedAccountInfos::NativeSol(v) | CachedAccountInfos::Token(v) => v.balance,
+            CachedAccountInfos::Program(_) => (change_in_pgr as i64) as f64,
+        };
         self.client
             .execute(
                 &self.insertion_statement,
-                &[&chrono::Utc::now(), &pubkey_str, &a.name, &a.balance],
+                &[&chrono::Utc::now(), &pubkey_str, &a.name, &value],
             )
             .await?;
         Ok(())

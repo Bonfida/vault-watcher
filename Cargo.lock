@@ -3882,6 +3882,7 @@ dependencies = [
  "clap 3.1.8",
  "dotenv",
  "futures",
+ "itertools",
  "reqwest",
  "serde",
  "serde_json",

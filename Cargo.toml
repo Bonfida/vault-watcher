@@ -19,3 +19,4 @@ tokio-postgres = {version = "0.7.5", features = ["with-chrono-0_4"]}
 chrono = "0.4.19"
 sysinfo = "0.23.8"
 futures = "0.3.21"
+itertools = "0.10.3"
