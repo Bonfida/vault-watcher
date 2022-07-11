@@ -326,7 +326,7 @@ pub async fn monitor(
                     upgrade_authority_address,
                 } = a.as_ref().unwrap().state().unwrap()
                 {
-                    if slot != p.last_deploy_slot {
+                    if slot > p.last_deploy_slot {
                         if let Some(c) = SlackClient::new() {
                             c.send_message(format!(
                                 "Program account deployment detected for {} (program data account: {}) | Old last_deploy slot {}, new last_deploy slot {}",
