@@ -30,7 +30,6 @@
 4. [Configuration examples](#configuration-examples)
 5. [Grafana](#grafana)
 
-//TODO update diagram
 <br />
 
 <p align="center">
@@ -43,7 +42,7 @@
 <h2 align="center">Introduction</h2>
 <br />
 
-This security utility can be deployed as a container on a server to enable the monitoring of mission-critical native sol, spl-token and program accounts. Thanks to compatibility with Slack notifications, it constitutes the basis for a simple early warning system able to detect suspicious variations in account balances and deployments. As such, it can help help detect critical bugs in production systems, as well as intentional attacks resulting from contract exploits, key theft, rogue agents/teams, etc.
+This security utility can be deployed as a container on a server to enable the monitoring of mission-critical native sol, spl-token and program accounts. Thanks to compatibility with Slack notifications, it constitutes the basis for a simple early warning system able to detect suspicious variations in account balances and deployments. As such, it can help detect critical bugs in production systems, as well as intentional attacks resulting from contract exploits, key theft, rogue agents/teams, etc.
 
 <br />
 <a name="usage"></a>
