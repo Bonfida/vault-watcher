@@ -20,4 +20,4 @@ chrono = "0.4.19"
 sysinfo = "0.27.2"
 futures = "0.3.21"
 itertools = "0.10.3"
-minimal-matrix = { git="ssh://git@github.com/Bonfida/minimal-matrix.git" }
+minimal-matrix = { git="https://git@github.com/Bonfida/minimal-matrix.git" }
