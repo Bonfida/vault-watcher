@@ -12,7 +12,7 @@ use solana_sdk::{
     account::Account, account_utils::StateMut, bpf_loader_upgradeable::UpgradeableLoaderState,
 };
 use solana_sdk::{program_pack::Pack, pubkey::Pubkey};
-use utils::SlackClient;
+use utils::{MatrixClient, SlackClient};
 
 mod db;
 mod utils;
@@ -314,6 +314,13 @@ pub async fn monitor(
                         ))
                         .await;
                     }
+                    if let Some(c) = MatrixClient::new().await {
+                        c.send_message(format!(
+                            "Vault account spike detected for {} ({}) of {} - previous balances {} - current balances {}",
+                            cached.name, cached.address, delta, v.balance, new_balance
+                        ))
+                        .await;
+                    }
                 }
                 v.balance = new_balance;
             }
@@ -334,11 +341,25 @@ pub async fn monitor(
                             ))
                             .await;
                         }
+                        if let Some(c) = MatrixClient::new().await {
+                            c.send_message(format!(
+                                "Program account deployment detected for {} (program data account: {}) | Old last_deploy slot {}, new last_deploy slot {}",
+                                cached.name, cached.address, p.last_deploy_slot, slot
+                            ))
+                            .await;
+                        }
                         p.last_deploy_slot = slot;
                         change_in_pgr = true;
                     }
                     if upgrade_authority_address != p.upgrade_auth {
                         if let Some(c) = SlackClient::new() {
+                            c.send_message(format!(
+                                "Program account upgrade authority change detected for {} (program data account: {}) | Old upgrade authority {:?} - New upgrade authority {:?}",
+                                cached.name, cached.address, p.upgrade_auth, upgrade_authority_address
+                            ))
+                            .await;
+                        }
+                        if let Some(c) = MatrixClient::new().await {
                             c.send_message(format!(
                                 "Program account upgrade authority change detected for {} (program data account: {}) | Old upgrade authority {:?} - New upgrade authority {:?}",
                                 cached.name, cached.address, p.upgrade_auth, upgrade_authority_address
