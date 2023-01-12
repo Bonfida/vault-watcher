@@ -1725,7 +1725,7 @@ checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
 [[package]]
 name = "minimal-matrix"
 version = "0.1.0"
-source = "git+https://git@github.com/Bonfida/minimal-matrix.git#9acc5f6e8d56fa183aa5064cdbb2980ddd60de18"
+source = "git+https://git@github.com/Bonfida/minimal-matrix.git#21917207eb1b8fdd4333d770c7bc974b7e2cf9a7"
 dependencies = [
  "derive_more",
  "reqwest",
