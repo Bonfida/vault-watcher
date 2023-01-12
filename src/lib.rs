@@ -161,7 +161,7 @@ pub async fn initialize(
         .collect::<Vec<_>>();
 
     // Fetch token mint decimals
-    let parsed_token_accounts = (&parsed_accounts)
+    let parsed_token_accounts = parsed_accounts
         .iter()
         .zip(&accounts)
         .map(|(cached, acc)| {
@@ -196,7 +196,7 @@ pub async fn initialize(
     );
 
     // Fetch the program data accounts, which are the ones to be cached
-    let program_data_keys = (&parsed_accounts)
+    let program_data_keys = parsed_accounts
         .iter()
         .zip(&accounts)
         .flat_map(|(cached, acc)| {
@@ -314,12 +314,11 @@ pub async fn monitor(
                         ))
                         .await;
                     }
-                    if let Some(c) = MatrixClient::new().await {
+                    if let Some(mut c) = MatrixClient::new().await {
                         c.send_message(format!(
                             "Vault account spike detected for {} ({}) of {} - previous balances {} - current balances {}",
                             cached.name, cached.address, delta, v.balance, new_balance
-                        ))
-                        .await;
+                        ));
                     }
                 }
                 v.balance = new_balance;
@@ -341,12 +340,11 @@ pub async fn monitor(
                             ))
                             .await;
                         }
-                        if let Some(c) = MatrixClient::new().await {
+                        if let Some(mut c) = MatrixClient::new().await {
                             c.send_message(format!(
                                 "Program account deployment detected for {} (program data account: {}) | Old last_deploy slot {}, new last_deploy slot {}",
                                 cached.name, cached.address, p.last_deploy_slot, slot
-                            ))
-                            .await;
+                            ));
                         }
                         p.last_deploy_slot = slot;
                         change_in_pgr = true;
@@ -359,12 +357,11 @@ pub async fn monitor(
                             ))
                             .await;
                         }
-                        if let Some(c) = MatrixClient::new().await {
+                        if let Some(mut c) = MatrixClient::new().await {
                             c.send_message(format!(
                                 "Program account upgrade authority change detected for {} (program data account: {}) | Old upgrade authority {:?} - New upgrade authority {:?}",
                                 cached.name, cached.address, p.upgrade_auth, upgrade_authority_address
-                            ))
-                            .await;
+                            ));
                         }
                         p.upgrade_auth = upgrade_authority_address;
                         change_in_pgr = true;

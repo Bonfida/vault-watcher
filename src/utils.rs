@@ -60,9 +60,8 @@ where
                 c.send_message(format!("Failed task with {:#?}, retrying", error))
                     .await;
             }
-            if let Some(c) = MatrixClient::new().await {
-                c.send_message(format!("Failed task with {:#?}, retrying", error))
-                    .await;
+            if let Some(mut c) = MatrixClient::new().await {
+                c.send_message(format!("Failed task with {:#?}, retrying", error));
             }
         }
 
@@ -79,26 +78,23 @@ impl MatrixClient {
     pub async fn new() -> Option<Self> {
         let home_server_name = std::env::var("HOME_SERVER_NAME").ok();
         let room_id = std::env::var("ROOM_ID").ok();
-        let user = std::env::var("MATRIX_USER").ok();
-        let password = std::env::var("MATRIX_PASSWORD").ok();
+        let access_token = std::env::var("MATRIX_TOKEN").ok();
 
-        if let (Some(home_server_name), Some(room_id), Some(user), Some(password)) =
-            (home_server_name, room_id, user, password)
+        if let (Some(home_server_name), Some(room_id), Some(access_token)) =
+            (home_server_name, room_id, access_token)
         {
-            let mut client = minimal_matrix::matrix::MatrixClient::new(
-                home_server_name,
-                room_id,
-                user,
-                password,
-            );
-            client.login().await.unwrap();
+            let client =
+                minimal_matrix::matrix::MatrixClient::new(home_server_name, room_id, access_token)
+                    .await
+                    .unwrap();
+
             Some(Self { client })
         } else {
             None
         }
     }
-    pub async fn send_message(&self, message: String) {
-        match self.client.send_message(message).await {
+    pub fn send_message(&mut self, message: String) {
+        match self.client.send_message(message) {
             Ok(_) => (),
             Err(err) => eprintln!("Failed to send Matrix message: {}", err),
         }
