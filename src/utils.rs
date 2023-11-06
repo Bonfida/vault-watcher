@@ -1,8 +1,8 @@
 use core::fmt::Debug;
+use minimal_matrix::notif_trait::Notifier;
 use reqwest::Client;
 use std::{future::Future, time::SystemTime};
 use tokio::task;
-
 pub struct SlackClient {
     pub client: Client,
     pub url: String,
@@ -60,7 +60,7 @@ where
                 c.send_message(format!("Failed task with {:#?}, retrying", error))
                     .await;
             }
-            if let Some(mut c) = MatrixClient::new().await {
+            if let Some(mut c) = Mattermost::new() {
                 c.send_message(format!("Failed task with {:#?}, retrying", error));
             }
         }
@@ -70,28 +70,16 @@ where
     }
 }
 
-pub struct MatrixClient {
-    pub client: minimal_matrix::matrix::MatrixClient,
+pub struct Mattermost {
+    pub client: minimal_matrix::mattermost::MatterMost,
 }
 
-impl MatrixClient {
-    pub async fn new() -> Option<Self> {
-        let home_server_name = std::env::var("HOME_SERVER_NAME").ok();
-        let room_id = std::env::var("ROOM_ID").ok();
-        let access_token = std::env::var("MATRIX_TOKEN").ok();
-
-        if let (Some(home_server_name), Some(room_id), Some(access_token)) =
-            (home_server_name, room_id, access_token)
-        {
-            let client =
-                minimal_matrix::matrix::MatrixClient::new(home_server_name, room_id, access_token)
-                    .await
-                    .unwrap();
-
-            Some(Self { client })
-        } else {
-            None
-        }
+impl Mattermost {
+    pub fn new() -> Option<Self> {
+        let url = std::env::var("MATTERMOST_URL").ok();
+        url.map(|val| Self {
+            client: minimal_matrix::mattermost::MatterMost::new(&val),
+        })
     }
     pub fn send_message(&mut self, message: String) {
         match self.client.send_message(message) {

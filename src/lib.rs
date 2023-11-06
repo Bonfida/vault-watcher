@@ -12,7 +12,7 @@ use solana_sdk::{
     account::Account, account_utils::StateMut, bpf_loader_upgradeable::UpgradeableLoaderState,
 };
 use solana_sdk::{program_pack::Pack, pubkey::Pubkey};
-use utils::{MatrixClient, SlackClient};
+use utils::{Mattermost, SlackClient};
 
 mod db;
 mod utils;
@@ -314,7 +314,7 @@ pub async fn monitor(
                         ))
                         .await;
                     }
-                    if let Some(mut c) = MatrixClient::new().await {
+                    if let Some(mut c) = Mattermost::new() {
                         c.send_message(format!(
                             "Vault account spike detected for {} ({}) of {} - previous balances {} - current balances {}",
                             cached.name, cached.address, delta, v.balance, new_balance
@@ -340,7 +340,7 @@ pub async fn monitor(
                             ))
                             .await;
                         }
-                        if let Some(mut c) = MatrixClient::new().await {
+                        if let Some(mut c) = Mattermost::new() {
                             c.send_message(format!(
                                 "Program account deployment detected for {} (program data account: {}) | Old last_deploy slot {}, new last_deploy slot {}",
                                 cached.name, cached.address, p.last_deploy_slot, slot
@@ -357,7 +357,7 @@ pub async fn monitor(
                             ))
                             .await;
                         }
-                        if let Some(mut c) = MatrixClient::new().await {
+                        if let Some(mut c) = Mattermost::new() {
                             c.send_message(format!(
                                 "Program account upgrade authority change detected for {} (program data account: {}) | Old upgrade authority {:?} - New upgrade authority {:?}",
                                 cached.name, cached.address, p.upgrade_auth, upgrade_authority_address
