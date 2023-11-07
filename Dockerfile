@@ -1,11 +1,11 @@
-FROM lukemathwalker/cargo-chef:latest AS chef
+FROM lukemathwalker/cargo-chef:latest-rust-bookworm AS chef
 WORKDIR vault-watcher
 
 FROM chef as planner
 COPY . .
 RUN cargo chef prepare --recipe-path recipe.json
 
-FROM chef AS builder 
+FROM chef AS builder
 COPY --from=planner /vault-watcher/recipe.json recipe.json
 # Build dependencies - this is the caching Docker layer!
 RUN cargo chef cook --release --recipe-path recipe.json
@@ -13,7 +13,7 @@ RUN cargo chef cook --release --recipe-path recipe.json
 COPY src ./src
 RUN cargo build --release
 
-FROM debian:bullseye-slim AS base
+FROM debian:bookworm-slim AS base
 RUN apt-get update
 RUN apt-get install -y ca-certificates
 
