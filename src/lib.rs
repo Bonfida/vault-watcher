@@ -47,9 +47,17 @@ pub enum InputAccountType {
 pub struct InputAccountRaw {
     pub account_type: InputAccountType,
     pub address: String,
-    pub max_change: Option<f64>,
-    pub max_change_period: Option<u64>,
+    #[serde(flatten)]
+    pub max_change: Option<MaxChange>,
     pub name: String,
+    pub min_amount_threshold: Option<f64>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct MaxChange {
+    max_change: f64,
+    max_change_period: u64,
 }
 
 impl InputAccountRaw {
@@ -65,20 +73,20 @@ impl InputAccountRaw {
                 address: *key,
                 name: r.name,
                 info: CachedAccountInfos::NativeSol(VaultAccountInfo {
-                    max_change: r.max_change.expect("Missing max change"),
-                    max_change_period: r.max_change_period.expect("Missing max change period"),
+                    max_change: r.max_change,
                     balance: 0.,
                     decimals: 9,
+                    min_amount_threshold: r.min_amount_threshold,
                 }),
             },
             TOKEN_PGR_ID => CachedAccount {
                 address: *key,
                 name: r.name,
                 info: CachedAccountInfos::Token(VaultAccountInfo {
-                    max_change: r.max_change.expect("Missing max change"),
-                    max_change_period: r.max_change_period.expect("Missing max change period"),
+                    max_change: r.max_change,
                     balance: 0.,
                     decimals: 0,
+                    min_amount_threshold: r.min_amount_threshold,
                 }),
             },
             BPF_UPLOADER_PGR_ID => CachedAccount {
@@ -118,8 +126,8 @@ pub enum CachedAccountInfos {
 pub struct VaultAccountInfo {
     balance: f64,
     decimals: i32,
-    max_change: f64,
-    max_change_period: u64,
+    max_change: Option<MaxChange>,
+    min_amount_threshold: Option<f64>,
 }
 
 #[derive(Debug)]
@@ -250,8 +258,10 @@ pub async fn initialize(
             CachedAccountInfos::NativeSol(ref mut v) | CachedAccountInfos::Token(ref mut v) => {
                 v.balance = (amount as f64) / 10.0f64.powi(v.decimals);
                 // Amount of change in one refresh
-                v.max_change =
-                    v.max_change * (refresh_period as f64) / (v.max_change_period as f64);
+                if let Some(v) = v.max_change.as_mut() {
+                    v.max_change =
+                        v.max_change * (refresh_period as f64) / (v.max_change_period as f64)
+                }
             }
 
             CachedAccountInfos::Program(ref mut c) => {
@@ -306,17 +316,39 @@ pub async fn monitor(
             {
                 let new_balance = (amount as f64) / 10.0f64.powi(v.decimals);
                 let delta = (new_balance - v.balance).abs();
-                if delta > v.max_change {
+                if v.max_change
+                    .as_ref()
+                    .map(|m| delta > m.max_change)
+                    .unwrap_or(false)
+                {
                     if let Some(c) = SlackClient::new() {
                         c.send_message(format!(
-                            "Vault account spike detected for {} ({}) of {} - previous balances {} - current balances {}",
+                            "Vault account spike detected for {} ({}) of {} - previous balance {} - current balance {}",
                             cached.name, cached.address, delta, v.balance, new_balance
                         ))
                         .await;
                     }
                     if let Some(mut c) = Mattermost::new() {
                         c.send_message(format!(
-                            "Vault account spike detected for {} ({}) of {} - previous balances {} - current balances {}",
+                            "Vault account spike detected for {} ({}) of {} - previous balance {} - current balance {}",
+                            cached.name, cached.address, delta, v.balance, new_balance
+                        ));
+                    }
+                }
+                if v.min_amount_threshold
+                    .map(|min_amount| new_balance < min_amount && v.balance > min_amount)
+                    .unwrap_or(false)
+                {
+                    if let Some(c) = SlackClient::new() {
+                        c.send_message(format!(
+                            "Vault account low detected for {} ({}) with delta {} - previous balance {} - current balance {}",
+                            cached.name, cached.address, delta, v.balance, new_balance
+                        ))
+                        .await;
+                    }
+                    if let Some(mut c) = Mattermost::new() {
+                        c.send_message(format!(
+                            "Vault account low detected for {} ({}) with delta {} - previous balance {} - current balance {}",
                             cached.name, cached.address, delta, v.balance, new_balance
                         ));
                     }
