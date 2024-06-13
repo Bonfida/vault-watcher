@@ -1,7 +1,7 @@
 use std::{
     collections::{hash_map::RandomState, HashMap},
     str::FromStr,
-    time::Duration,
+    time::{Duration, Instant},
 };
 
 use db::Database;
@@ -77,6 +77,7 @@ impl InputAccountRaw {
                     balance: 0.,
                     decimals: 9,
                     min_amount_threshold: r.min_amount_threshold,
+                    last_min_amount_threshold_alert: None,
                 }),
             },
             TOKEN_PGR_ID => CachedAccount {
@@ -87,6 +88,7 @@ impl InputAccountRaw {
                     balance: 0.,
                     decimals: 0,
                     min_amount_threshold: r.min_amount_threshold,
+                    last_min_amount_threshold_alert: None,
                 }),
             },
             BPF_UPLOADER_PGR_ID => CachedAccount {
@@ -128,6 +130,7 @@ pub struct VaultAccountInfo {
     decimals: i32,
     max_change: Option<MaxChange>,
     min_amount_threshold: Option<f64>,
+    last_min_amount_threshold_alert: Option<Instant>,
 }
 
 #[derive(Debug)]
@@ -336,7 +339,13 @@ pub async fn monitor(
                     }
                 }
                 if v.min_amount_threshold
-                    .map(|min_amount| new_balance < min_amount && v.balance > min_amount)
+                    .map(|min_amount| {
+                        new_balance < min_amount
+                            && (v.balance > min_amount
+                                || v.last_min_amount_threshold_alert
+                                    .map(|i| i.elapsed().as_secs() > 300)
+                                    .unwrap_or(true))
+                    })
                     .unwrap_or(false)
                 {
                     if let Some(c) = SlackClient::new() {
@@ -352,6 +361,7 @@ pub async fn monitor(
                             cached.name, cached.address, delta, v.balance, new_balance
                         ));
                     }
+                    v.last_min_amount_threshold_alert = Some(Instant::now());
                 }
                 v.balance = new_balance;
             }
