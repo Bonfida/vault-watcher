@@ -56,7 +56,7 @@ impl InputAccountRaw {
     pub fn parse((key, r, acc): (&Pubkey, InputAccountRaw, &Option<Account>)) -> CachedAccount {
         match acc
             .as_ref()
-            .expect(&format!("Account {} could not be found", key))
+            .unwrap_or_else(|| panic!("Account {} could not be found", key))
             .owner
             .to_string()
             .as_str()

@@ -50,8 +50,8 @@ where
     loop {
         let res = e(f(&arg).await);
         let mut counter = 1;
-        if res.is_ok() {
-            return res.unwrap();
+        if let Ok(r) = res {
+            return r;
         }
         counter += 1;
         let error = res.err().unwrap();
